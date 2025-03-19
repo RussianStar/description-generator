@@ -61,6 +61,52 @@ button#processButton {
     margin-bottom: 20px;
 }
 
+button#stopButton {
+    width: 100%;
+    padding: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: none; /* Initially hidden */
+}
+
+#loadingIndicator {
+    font-size: 16px;
+    color: #007bff;
+    margin-left: 10px;
+    display: none; /* Initially hidden */
+}
+
+.settings-container {
+    margin-bottom: 20px;
+}
+
+.settings-content {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.settings-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.settings-content input[type="text"],
+.settings-content select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
 .results-container {
     display: flex;
     flex-direction: column;
