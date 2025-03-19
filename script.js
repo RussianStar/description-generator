@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (const image of images) {
             try {
-                const resizedImage = await resizeImage(image, 1120, 1120);
+                const resizedImage = await resizeImage(image, 896, 896);
                 const base64Image = await convertToBase64(resizedImage);
 
 const endpointUrl = document.getElementById('endpointUrl').value;
@@ -52,7 +52,7 @@ const response = await fetch(endpointUrl, {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        model: "llama3.2-vision",
+                        model: modelSelect,
                         images: [base64Image],
                         stream: false,
                         prompt: instructionPromptText
