@@ -33,14 +33,30 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const resizedImage = await resizeImage(image, 1120, 1120);
                 const base64Image = await convertToBase64(resizedImage);
-                const formData = new FormData();
-                formData.append('images', JSON.stringify([base64Image]));
-                formData.append('model', "llama3.2-vision");
-                formData.append('prompt', instructionPromptText);
 
-                const response = await fetch('http://192.168.178.188:11434/api/generate', {
+const endpointUrl = document.getElementById('endpointUrl').value;
+const modelSelect = document.getElementById('modelSelect').value;
+const apiKey = document.getElementById('apiKey').value;
+
+const headers = {
+    'Content-Type': 'application/json',
+};
+
+if (apiKey) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+}
+
+const response = await fetch(endpointUrl, {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: "llama3.2-vision",
+                        images: [base64Image],
+                        stream: false,
+                        prompt: instructionPromptText
+                    })
                 });
 
                 if (!response.ok) {
@@ -48,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const result = await response.json();
-                displayResult(image, result.description);
+                displayResult(image, result.response);
             } catch (error) {
                 console.error('Error processing image:', error);
                 alert('Failed to process image.');

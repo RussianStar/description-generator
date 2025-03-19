@@ -7,6 +7,22 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="settings-container">
+        <button class="toggle-button">Settings</button>
+        <div class="settings-content" style="display: none;">
+            <label for="endpointUrl">Endpoint URL:</label>
+            <input type="text" id="endpointUrl" value="http://192.168.178.188:11434/api/generate">
+            
+            <label for="modelSelect">Model:</label>
+            <select id="modelSelect">
+                <option value="llama3.2-vision">llama3.2-vision</option>
+                <!-- Add more models if needed -->
+            </select>
+
+            <label for="apiKey">API Key (optional):</label>
+            <input type="text" id="apiKey">
+        </div>
+    </div>
     <div class="container">
         <h1>Image LLM Processor</h1>
         <input type="file" id="folderInput" webkitdirectory directory multiple>
