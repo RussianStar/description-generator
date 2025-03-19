@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const processButton = document.getElementById('processButton');
     const resultsContainer = document.getElementById('resultsContainer');
 
+    let processing = false;
+    let abortController = null;
+
     // Toggle visibility of textareas
     document.querySelectorAll('.toggle-button').forEach(button => {
         button.addEventListener('click', () => {
@@ -18,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     processButton.addEventListener('click', async () => {
+        if (processing) return;
+
         const files = folderInput.files;
         const systemPromptText = systemPrompt.value.trim();
         const instructionPromptText = instructionPrompt.value.trim();
@@ -27,49 +32,103 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        processing = true;
+        processButton.style.display = 'none';
+
         const images = Array.from(files).filter(file => file.type.startsWith('image/'));
 
         for (const image of images) {
             try {
-                const resizedImage = await resizeImage(image, 896, 896);
+                const maxWidth = parseInt(document.getElementById('maxWidth').value, 10);
+                const maxHeight = parseInt(document.getElementById('maxHeight').value, 10);
+
+                const resizedImage = await resizeImage(image, maxWidth, maxHeight);
                 const base64Image = await convertToBase64(resizedImage);
 
-const endpointUrl = document.getElementById('endpointUrl').value;
-const modelSelect = document.getElementById('modelSelect').value;
-const apiKey = document.getElementById('apiKey').value;
+                const endpointUrl = document.getElementById('endpointUrl').value;
+                const modelSelect = document.getElementById('modelSelect').value;
+                const apiKey = document.getElementById('apiKey').value;
+                const apiType = document.getElementById('apiType').value;
 
-const headers = {
-    'Content-Type': 'application/json',
-};
+                let headers = {
+                    'Content-Type': 'application/json',
+                };
 
-if (apiKey) {
-    headers['Authorization'] = `Bearer ${apiKey}`;
-}
-
-const response = await fetch(endpointUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: modelSelect,
-                        images: [base64Image],
-                        stream: false,
-                        prompt: instructionPromptText
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                if (apiKey) {
+                    headers['Authorization'] = `Bearer ${apiKey}`;
                 }
 
-                const result = await response.json();
-                displayResult(image, result.response);
+                abortController = new AbortController();
+                const signal = abortController.signal;
+
+                let response;
+                if (apiType === 'openrouter') {
+                    const body = JSON.stringify({
+                        model: modelSelect,
+                        messages: [
+                            {
+                                role: "user",
+                                content: [
+                                    {
+                                        type: "text",
+                                        text: instructionPromptText,
+                                    },
+                                    {
+                                        type: "image_url",
+                                        image_url: {
+                                            url: `data:image/jpeg;base64,${base64Image}`,
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                    });
+
+                    response = await fetch(endpointUrl, {
+                        method: 'POST',
+                        headers: headers,
+                        body: body,
+                        signal: signal
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+    
+                    const result = await response.json();
+                    displayResult(image, result.choices[0].message.content);
+                } else {
+                    const body = JSON.stringify({
+                        model: modelSelect,
+                        images: [base64Image],
+                        systemPrompt: systemPromptText,
+                        instructionPrompt: instructionPromptText
+                    });
+
+                    response = await fetch(endpointUrl, {
+                        method: 'POST',
+                        headers: headers,
+                        body: body,
+                        signal: signal
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+    
+                    const result = await response.json();
+                    displayResult(image, result.description);
+                }
             } catch (error) {
-                console.error('Error processing image:', error);
-                alert('Failed to process image.');
+                if (error.name === 'AbortError') {
+                    console.log('Fetch aborted');
+                } else {
+                    console.error('Error processing image:', error);
+                    alert('Failed to process image.');
+                }
             }
         }
+
+        processing = false;
+        processButton.style.display = 'inline-block';
     });
 
     function resizeImage(file, maxWidth, maxHeight) {
