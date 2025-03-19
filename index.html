@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image LLM Processor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Image LLM Processor</h1>
+        <input type="file" id="folderInput" webkitdirectory directory multiple>
+        
+        <div class="prompt-container">
+            <button class="toggle-button">System Prompt</button>
+            <textarea id="systemPrompt" placeholder="Enter system prompt here..."></textarea>
+        </div>
+
+        <div class="prompt-container">
+            <button class="toggle-button">Instruction Prompt</button>
+            <textarea id="instructionPrompt" placeholder="Enter instruction prompt here..."></textarea>
+        </div>
+
+        <button id="processButton">Process Images</button>
+
+        <div id="resultsContainer" class="results-container"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+</write_to_file>
